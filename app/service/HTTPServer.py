@@ -101,13 +101,9 @@ def list_directory(path):
         send_error(404, "No permission to list directory")
         return None
     list.sort(key=lambda a: a.lower())
-    f = StringIO()
     displaypath = cgi.escape(urllib.unquote(path))
-    f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
-    f.write("<html>\n<title>Directory listing for %s</title>\n" %
-            displaypath)
-    f.write("<body>\n<h2>Directory listing for %s</h2>\n" % displaypath)
-    f.write("<hr>\n<ul>\n")
+    linkname_list = []
+    displayname_list = []
     for name in list:
         fullname = os.path.join(path, name)
         displayname = linkname = name
@@ -118,8 +114,10 @@ def list_directory(path):
         if os.path.islink(fullname):
             displayname = name + "@"
             # Note: a link to a directory displays with @ and links with /
-        f.write('<li><a href="%s">%s</a>\n'
-                % (urllib.quote(linkname), cgi.escape(displayname)))
+        linkname_list.append(urllib.quote(linkname))
+        displayname_list.append(cgi.escape(displayname))
+
+    #TODO
     f.write("</ul>\n<hr>\n</body>\n</html>\n")
     length = f.tell()
     f.seek(0)
@@ -154,7 +152,7 @@ def translate_path(path):
             continue
         path = os.path.join(path, word)
     if trailing_slash:
-        path += '/'
+        path += '\\'
     return path
 
 def copyfile(source, outputfile):
