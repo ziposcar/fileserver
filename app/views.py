@@ -2,15 +2,20 @@ import os
 import urlparse
 from json import dumps
 
-from flask import Blueprint, jsonify, redirect, request
+from flask import Blueprint, jsonify, redirect, request, make_response
 
-from app.service.HTTPServer import translate_path
+from app.service.HTTPServer import translate_path, list_directory, guess_type
 from config import current_config
 
 main = Blueprint('main', __name__, static_folder=current_config['static_folder'])
 
 
-@main.route('/<path:path>')
+@main.route('/', methods=['GET'])
+def root():
+    return list_directory('/')
+
+
+@main.route('/<path:path>', methods=['GET'])
 def index(path):
     path = translate_path(path)
     if os.path.isdir(path):
@@ -27,5 +32,11 @@ def index(path):
                 break
         else:
             return list_directory(path)
-    return jsonify([path])
-    # return jsonify([dir(request), request.url])
+    ctype = guess_type(path)
+    try:
+        with open(path, 'rb') as fb:
+            response = make_response(fb.read(), 200)
+            response.headers['Content-type'] = ctype
+            return response
+    except IOError:
+        return "File not found", 404

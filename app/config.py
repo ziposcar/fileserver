@@ -1,5 +1,5 @@
 config_common = {
-    'static_folder': 'D:\\player'
+    'static_folder': 'D:\\'
 }
 
 config_dev = dict(config_common, **{

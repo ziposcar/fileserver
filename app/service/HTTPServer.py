@@ -10,6 +10,7 @@ import shutil
 import mimetypes
 
 from app.config import current_config
+from flask import render_template
 
 try:
     from cStringIO import StringIO
@@ -18,6 +19,7 @@ except ImportError:
 
 
 server_version = "SimpleHTTP/" + __version__
+
 
 def do_GET():
     """Serve a GET request."""
@@ -28,11 +30,13 @@ def do_GET():
         finally:
             f.close()
 
+
 def do_HEAD():
     """Serve a HEAD request."""
     f = send_head()
     if f:
         f.close()
+
 
 def send_head():
     """Common code for GET and HEAD commands.
@@ -53,7 +57,7 @@ def send_head():
             # redirect browser - doing basically what apache does
             send_response(301)
             new_parts = (parts[0], parts[1], parts[2] + '/',
-                            parts[3], parts[4])
+                         parts[3], parts[4])
             new_url = urlparse.urlunsplit(new_parts)
             send_header("Location", new_url)
             end_headers()
@@ -87,6 +91,7 @@ def send_head():
         f.close()
         raise
 
+
 def list_directory(path):
     """Helper to produce a directory listing (absent index.html).
 
@@ -102,8 +107,7 @@ def list_directory(path):
         return None
     list.sort(key=lambda a: a.lower())
     displaypath = cgi.escape(urllib.unquote(path))
-    linkname_list = []
-    displayname_list = []
+    name_list = []
     for name in list:
         fullname = os.path.join(path, name)
         displayname = linkname = name
@@ -114,19 +118,13 @@ def list_directory(path):
         if os.path.islink(fullname):
             displayname = name + "@"
             # Note: a link to a directory displays with @ and links with /
-        linkname_list.append(urllib.quote(linkname))
-        displayname_list.append(cgi.escape(displayname))
+        name_list.append((linkname, cgi.escape(displayname)))
+    response = render_template('list_directory.html',
+                          displaypath=displaypath, 
+                          name_list=name_list)
+    # TODO
+    return response
 
-    #TODO
-    f.write("</ul>\n<hr>\n</body>\n</html>\n")
-    length = f.tell()
-    f.seek(0)
-    send_response(200)
-    encoding = sys.getfilesystemencoding()
-    send_header("Content-type", "text/html; charset=%s" % encoding)
-    send_header("Content-Length", str(length))
-    end_headers()
-    return f
 
 def translate_path(path):
     """Translate a /-separated PATH to the local filename syntax.
@@ -144,7 +142,6 @@ def translate_path(path):
     path = posixpath.normpath(urllib.unquote(path))
     words = path.split('/')
     words = filter(None, words)
-    # path = os.getcwd() # TODO
     path = current_config['static_folder']
     for word in words:
         if os.path.dirname(word) or word in (os.curdir, os.pardir):
@@ -154,6 +151,7 @@ def translate_path(path):
     if trailing_slash:
         path += '\\'
     return path
+
 
 def copyfile(source, outputfile):
     """Copy all data between two file objects.
@@ -170,6 +168,7 @@ def copyfile(source, outputfile):
 
     """
     shutil.copyfileobj(source, outputfile)
+
 
 def guess_type(path):
     """Guess the type of a file.
@@ -195,6 +194,7 @@ def guess_type(path):
     else:
         return extensions_map['']
 
+
 if not mimetypes.inited:
     mimetypes.init()  # try to read system mime.types
 extensions_map = mimetypes.types_map.copy()
@@ -202,6 +202,9 @@ extensions_map.update({
     '': 'application/octet-stream',  # Default
     '.py': 'text/plain',
     '.c': 'text/plain',
+    '.c++': 'text/plain',
+    '.cc': 'text/plain',
+    '.cpp': 'text/plain',
+    '.hpp': 'text/plain',
     '.h': 'text/plain',
 })
-

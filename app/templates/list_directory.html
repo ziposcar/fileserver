@@ -6,9 +6,11 @@
     <h2>Directory listing for {{ displaypath }}</h2>
     <hr>
     <ul>
+        {% for name in name_list %}
         <li>
-            <a href="{{}}">{{}}</a>
+            <a href="{{ name[0] }}">{{ name[1] }}</a>
         </li>
+        {% endfor %}
     </ul>
     <hr>
 </body>
