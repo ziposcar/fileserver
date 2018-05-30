@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 config_common = {
-    'static_folder': '/home/zip/project/fileserver/frontend/'
+    'static_folder': '/home/zip/'
 }
 
 config_dev = dict(config_common, **{

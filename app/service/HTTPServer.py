@@ -17,7 +17,7 @@ import shutil
 import mimetypes
 
 from app.config import current_config
-from flask import render_template
+from flask import render_template, jsonify
 
 try:
     from cStringIO import StringIO
@@ -110,7 +110,7 @@ def list_directory(path):
     try:
         list = os.listdir(path)
     except os.error:
-        return "No permission to list directory: path: "+ path, 404
+        return jsonify({'errno': 404, 'errmsg': "No permission to list directory: path: "+ path})
     list.sort(key=lambda a: a.lower())
     displaypath = cgi.escape(urllib.unquote(path))
     name_list = []
@@ -125,10 +125,8 @@ def list_directory(path):
             displayname = name + "@"
             # Note: a link to a directory displays with @ and links with /
         name_list.append((linkname, cgi.escape(displayname)))
-    response = render_template('list_directory.html',
-                          displaypath=displaypath, 
-                          name_list=name_list)
-    # TODO
+    response = jsonify({'errno': 0, 'errmsg': '', 'data': {'displaypath': displaypath, 'name_list': name_list}})
+    response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
 
