@@ -1,5 +1,8 @@
+#!/usr/bin/python 
+# -*- coding: utf-8 -*-
+
 config_common = {
-    'static_folder': 'D:\\'
+    'static_folder': '/home/zip/project/fileserver/frontend/'
 }
 
 config_dev = dict(config_common, **{

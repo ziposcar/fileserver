@@ -1,3 +1,6 @@
+#!/usr/bin/python 
+# -*- coding: utf-8 -*-
+
 import os
 import urlparse
 from json import dumps
@@ -12,7 +15,7 @@ main = Blueprint('main', __name__, static_folder=current_config['static_folder']
 
 @main.route('/', methods=['GET'])
 def root():
-    return list_directory('/')
+    return list_directory(current_config['static_folder'])
 
 
 @main.route('/<path:path>', methods=['GET'])

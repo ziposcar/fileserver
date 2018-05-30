@@ -1,3 +1,6 @@
+#!/usr/bin/python 
+# -*- coding: utf-8 -*-
+
 __version__ = "0.6"
 
 import os
@@ -6,6 +9,10 @@ import urllib
 import urlparse
 import cgi
 import sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 import shutil
 import mimetypes
 
@@ -103,8 +110,7 @@ def list_directory(path):
     try:
         list = os.listdir(path)
     except os.error:
-        send_error(404, "No permission to list directory")
-        return None
+        return "No permission to list directory: path: "+ path, 404
     list.sort(key=lambda a: a.lower())
     displaypath = cgi.escape(urllib.unquote(path))
     name_list = []
@@ -149,7 +155,7 @@ def translate_path(path):
             continue
         path = os.path.join(path, word)
     if trailing_slash:
-        path += '\\'
+        path += '/'
     return path
 
 
